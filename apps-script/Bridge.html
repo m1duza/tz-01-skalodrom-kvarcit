@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Кварцит — приёмник заявок</title>
+  </head>
+  <body>
+    <p id="status">Приёмник заявок готов.</p>
+    <script>
+      const allowedOrigins = new Set([
+        'https://tz-01-skalodrom-kvarcit.vercel.app'
+      ]);
+      let busy = false;
+
+      window.addEventListener('message', function(event) {
+        if (event.source !== parent || !allowedOrigins.has(event.origin)) return;
+        const message = event.data;
+        if (!message || message.type !== 'kvarcit-submit' || busy) return;
+
+        busy = true;
+        const payload = message.payload || {};
+        const requestId = String(payload.request_id || '');
+        google.script.run
+          .withSuccessHandler(function(result) {
+            busy = false;
+            parent.postMessage({
+              type: 'kvarcit-lead-result',
+              requestId: requestId,
+              ok: Boolean(result && result.ok),
+              result: result || null
+            }, event.origin);
+          })
+          .withFailureHandler(function(error) {
+            busy = false;
+            parent.postMessage({
+              type: 'kvarcit-lead-result',
+              requestId: requestId,
+              ok: false,
+              error: error && error.message ? error.message : 'Не удалось сохранить заявку.'
+            }, event.origin);
+          })
+          .saveLead(payload);
+      });
+
+      parent.postMessage({ type: 'kvarcit-bridge-ready' }, '*');
+    </script>
+  </body>
+</html>

@@ -59,6 +59,54 @@
       const weekend=/суббота|воскресенье/i.test(selectedTime);
       form.elements.preferred_time.value=weekend?'weekend':hour<12?'morning':hour<18?'day':'evening';
     }
+    let bridgeFrame = null;
+    let bridgeReady = false;
+    let resolveBridgeReady;
+    const bridgeReadyPromise = new Promise(resolve => { resolveBridgeReady = resolve; });
+    let pendingRequest = null;
+    if (window.KVARCIT_LEAD_ENDPOINT) {
+      bridgeFrame = document.createElement('iframe');
+      bridgeFrame.title = 'Приёмник заявок';
+      bridgeFrame.setAttribute('aria-hidden', 'true');
+      bridgeFrame.referrerPolicy = 'no-referrer';
+      bridgeFrame.tabIndex = -1;
+      bridgeFrame.hidden = true;
+      window.addEventListener('message', function(event){
+        if (!bridgeFrame || event.source !== bridgeFrame.contentWindow || !event.data) return;
+        if (event.data.type === 'kvarcit-bridge-ready') {
+          bridgeReady = true;
+          resolveBridgeReady();
+          return;
+        }
+        if (event.data.type === 'kvarcit-lead-result' && pendingRequest && event.data.requestId === pendingRequest.requestId) {
+          const request = pendingRequest;
+          pendingRequest = null;
+          clearTimeout(request.timeout);
+          if (event.data.ok) request.resolve(event.data.result || { ok: true });
+          else request.reject(new Error(event.data.error || 'server'));
+        }
+      });
+      bridgeFrame.src = window.KVARCIT_LEAD_ENDPOINT;
+      document.body.appendChild(bridgeFrame);
+    }
+    const sendLead = async function(payload){
+      if (!bridgeFrame) throw new Error('not_configured');
+      if (!bridgeReady) {
+        await Promise.race([
+          bridgeReadyPromise,
+          new Promise((_, reject) => setTimeout(() => reject(new Error('bridge_timeout')), 15000))
+        ]);
+      }
+      return new Promise((resolve, reject) => {
+        const requestId = payload.request_id;
+        const timeout = setTimeout(() => {
+          if (pendingRequest && pendingRequest.requestId === requestId) pendingRequest = null;
+          reject(new Error('request_timeout'));
+        }, 15000);
+        pendingRequest = { requestId, resolve, reject, timeout };
+        bridgeFrame.contentWindow.postMessage({ type: 'kvarcit-submit', payload }, '*');
+      });
+    };
     form.addEventListener('submit',async function(event){
       event.preventDefault();
       const message=form.querySelector('.form-message');
@@ -74,9 +122,12 @@
       if(!endpoint){message.textContent='Форма готова, но приёмник заявок ещё не подключён. Подключим его после настройки Google Таблицы.';track('form_error',{field_name:'form',error_type:'server'});return;}
       const submit=form.querySelector('[type=submit]');submit.disabled=true;message.textContent='Отправляем заявку…';
       try{
-        const response=await fetch(endpoint,{method:'POST',body:new URLSearchParams(new FormData(form))});
-        const result=await response.json();
-        if(!response.ok||!result.ok)throw new Error(result.error||'server');
+        const values=Object.fromEntries(new FormData(form).entries());
+        values.phone=phone;
+        values.page_url=location.origin+location.pathname;
+        values.consent=consent;
+        const result=await sendLead(values);
+        if(!result.ok)throw new Error(result.error||'server');
         track('generate_lead',{lead_direction:form.elements.direction.value,lead_source:form.elements.utm_source.value});
         sessionStorage.setItem('kvarcit_request_id',requestId);location.href='thanks.html';
       }catch(error){message.textContent='Не удалось отправить заявку. Попробуйте ещё раз или позвоните нам.';submit.disabled=false;track('form_error',{field_name:'form',error_type:'server'});}
