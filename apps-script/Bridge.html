@@ -15,7 +15,7 @@
       let busy = false;
 
       window.addEventListener('message', function(event) {
-        if (event.source !== parent || !allowedOrigins.has(event.origin)) return;
+        if (event.source !== window.top || !allowedOrigins.has(event.origin)) return;
         const message = event.data;
         if (!message || message.type !== 'kvarcit-submit' || busy) return;
 
@@ -25,7 +25,7 @@
         google.script.run
           .withSuccessHandler(function(result) {
             busy = false;
-            parent.postMessage({
+            window.top.postMessage({
               type: 'kvarcit-lead-result',
               requestId: requestId,
               ok: Boolean(result && result.ok),
@@ -34,7 +34,7 @@
           })
           .withFailureHandler(function(error) {
             busy = false;
-            parent.postMessage({
+            window.top.postMessage({
               type: 'kvarcit-lead-result',
               requestId: requestId,
               ok: false,
@@ -44,7 +44,7 @@
           .saveLead(payload);
       });
 
-      parent.postMessage({ type: 'kvarcit-bridge-ready' }, '*');
+      window.top.postMessage({ type: 'kvarcit-bridge-ready' }, '*');
     </script>
   </body>
 </html>

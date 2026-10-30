@@ -60,6 +60,7 @@
       form.elements.preferred_time.value=weekend?'weekend':hour<12?'morning':hour<18?'day':'evening';
     }
     let bridgeFrame = null;
+    let bridgeWindow = null;
     let bridgeReady = false;
     let resolveBridgeReady;
     const bridgeReadyPromise = new Promise(resolve => { resolveBridgeReady = resolve; });
@@ -71,14 +72,21 @@
       bridgeFrame.referrerPolicy = 'no-referrer';
       bridgeFrame.tabIndex = -1;
       bridgeFrame.hidden = true;
+      const isAppsScriptOrigin = origin => {
+        try {
+          const host = new URL(origin).hostname;
+          return host === 'script.google.com' || host.endsWith('script.googleusercontent.com');
+        } catch (error) { return false; }
+      };
       window.addEventListener('message', function(event){
-        if (!bridgeFrame || event.source !== bridgeFrame.contentWindow || !event.data) return;
+        if (!bridgeFrame || !event.data || !isAppsScriptOrigin(event.origin)) return;
         if (event.data.type === 'kvarcit-bridge-ready') {
+          bridgeWindow = event.source;
           bridgeReady = true;
           resolveBridgeReady();
           return;
         }
-        if (event.data.type === 'kvarcit-lead-result' && pendingRequest && event.data.requestId === pendingRequest.requestId) {
+        if (event.source === bridgeWindow && event.data.type === 'kvarcit-lead-result' && pendingRequest && event.data.requestId === pendingRequest.requestId) {
           const request = pendingRequest;
           pendingRequest = null;
           clearTimeout(request.timeout);
@@ -98,13 +106,14 @@
         ]);
       }
       return new Promise((resolve, reject) => {
+        if (!bridgeWindow) { reject(new Error('bridge_not_ready')); return; }
         const requestId = payload.request_id;
         const timeout = setTimeout(() => {
           if (pendingRequest && pendingRequest.requestId === requestId) pendingRequest = null;
           reject(new Error('request_timeout'));
         }, 15000);
         pendingRequest = { requestId, resolve, reject, timeout };
-        bridgeFrame.contentWindow.postMessage({ type: 'kvarcit-submit', payload }, '*');
+        bridgeWindow.postMessage({ type: 'kvarcit-submit', payload }, '*');
       });
     };
     form.addEventListener('submit',async function(event){
