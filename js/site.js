@@ -50,7 +50,8 @@
   }));
   const form = document.querySelector('#lead-form');
   if (form) {
-    utmKeys.forEach(key=>{const input=form.elements[key];if(input)input.value=sessionStorage.getItem(key)|| (key==='utm_source'?'direct':'not_set');});
+    const utmDefaults = { utm_source: 'direct', utm_medium: 'none', utm_campaign: 'not_set', utm_content: 'not_set' };
+    utmKeys.forEach(key=>{const input=form.elements[key];if(input)input.value=sessionStorage.getItem(key)||utmDefaults[key];});
     const requestId='REQ-'+crypto.randomUUID();form.elements.request_id.value=requestId;
     const direction=params.get('direction');if(direction&&form.elements.direction)form.elements.direction.value=direction;
     const selectedTime=params.get('time');
