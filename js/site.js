@@ -120,11 +120,17 @@
     form.addEventListener('submit',async function(event){
       event.preventDefault();
       const message=form.querySelector('.form-message');
-      const phone=form.elements.phone.value.replace(/[\s()-]/g,'');
+      const enteredPhone=form.elements.phone.value;
+      const phoneDigits=enteredPhone.replace(/\D/g,'');
+      const phone=phoneDigits.length===10
+        ? '+7'+phoneDigits
+        : phoneDigits.length===11&&(phoneDigits[0]==='7'||phoneDigits[0]==='8')
+          ? '+7'+phoneDigits.slice(1)
+          : enteredPhone.replace(/[\s()-]/g,'');
       const name=form.elements.name.value.trim();
       const consent=form.elements.consent.checked;
       if(name.length<2||name.length>60){message.textContent='Введите имя от 2 до 60 символов.';track('form_error',{field_name:'name',error_type:'validation'});return;}
-      if(!/^\+7\d{10}$/.test(phone)){message.textContent='Укажите телефон в формате +7 и ещё 10 цифр.';track('form_error',{field_name:'phone',error_type:'validation'});return;}
+      if(!/^\+7\d{10}$/.test(phone)){message.textContent='Укажите российский номер: 8 900 000-00-00 или +7 900 000-00-00.';track('form_error',{field_name:'phone',error_type:'validation'});return;}
       if(form.elements.email.value&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.elements.email.value)){message.textContent='Проверьте адрес электронной почты.';track('form_error',{field_name:'email',error_type:'validation'});return;}
       if(!consent){message.textContent='Чтобы отправить заявку, подтвердите согласие на обработку данных.';track('form_error',{field_name:'consent',error_type:'validation'});return;}
       form.elements.phone.value=phone;
