@@ -13,12 +13,13 @@
     return;
   }
 
-  window.gtag('js', new Date());
-  window.gtag('config', measurementId, { send_page_view: true });
-
   // Если стандартный сниппет gtag уже стоит в <head>, второй раз не подключаем.
   const alreadyLoaded = document.querySelector('script[src*="googletagmanager.com/gtag/js"]');
   if (!alreadyLoaded) {
+    window.gtag('js', new Date());
+    // Для проверки в DebugView временно замените на { debug_mode: true }.
+    // Перед сдачей верните как ниже (ТЗ 4.6).
+    window.gtag('config', measurementId, { send_page_view: true });
     const script = document.createElement('script');
     script.async = true;
     script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(measurementId);
