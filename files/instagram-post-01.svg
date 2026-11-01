@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#252a32"/>
+      <stop offset="1" stop-color="#171b22"/>
+    </linearGradient>
+    <linearGradient id="wall" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#565d67"/>
+      <stop offset="1" stop-color="#343a43"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000" flood-opacity=".22"/>
+    </filter>
+  </defs>
+  <rect width="1080" height="1350" fill="url(#bg)"/>
+  <path d="M710 0h370v1350H430z" fill="#2e343d" opacity=".68"/>
+  <path d="M1080 0v845L594 1350h486z" fill="#3a414b" opacity=".62"/>
+
+  <g opacity=".96">
+    <path d="M690 128c109-100 284-100 390 6v548L728 1000 542 628z" fill="#d65326"/>
+    <path d="M760 240 1080 165v394L696 774z" fill="url(#wall)" stroke="#f0a544" stroke-width="8"/>
+    <path d="M706 791 1080 568v240L855 1040z" fill="#414852" stroke="#f0a544" stroke-width="8"/>
+    <path d="M757 338l91-52 48 39-76 57zM961 286l54-34 39 33-43 46zM807 495l60-34 41 38-67 39zM995 457l69-41 16 38-50 43zM724 661l50-28 36 34-55 31zM905 663l68-39 31 37-70 41zM850 886l50-29 37 35-56 33zM1010 825l58-34 12 39-44 28z" fill="#ffc45c"/>
+    <path d="M903 305c-21 54-32 101-31 144m-1 5c-39 38-60 74-67 111m69-111c28 37 48 77 56 119m-124-10c-13 36-8 69 16 100m53-94c36 27 57 58 63 91" fill="none" stroke="#fff3d4" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="875" cy="282" r="34" fill="#fff3d4"/>
+    <path d="M900 425l-45 38m-49 101 58-6 49 42m-95-36-39 52m134-16 31 56" fill="none" stroke="#fff3d4" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M873 449l34-22 25 27-31 25z" fill="#2c333c"/>
+  </g>
+
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="76" y="92" fill="#f6f4ef" font-size="29" font-weight="700" letter-spacing="3">КВАРЦИТ · СКАЛОДРОМ</text>
+    <rect x="76" y="151" width="245" height="56" rx="28" fill="#f3ad49"/>
+    <text x="198" y="189" text-anchor="middle" fill="#222831" font-size="21" font-weight="700" letter-spacing="2">ПЕРВЫЙ РАЗ?</text>
+
+    <text x="76" y="322" fill="#fffaf3" font-size="74" font-weight="800" letter-spacing="-2">ПЕРВАЯ</text>
+    <text x="76" y="408" fill="#fffaf3" font-size="74" font-weight="800" letter-spacing="-2">ТРАССА ЗА</text>
+    <text x="76" y="494" fill="#f3ad49" font-size="74" font-weight="800" letter-spacing="-2">20 МИНУТ</text>
+    <text x="78" y="556" fill="#e4e3df" font-size="28">Пробная тренировка с инструктором</text>
+    <text x="78" y="612" fill="#fffaf3" font-size="48" font-weight="700">590 ₽</text>
+
+    <g filter="url(#shadow)">
+      <rect x="76" y="1034" width="928" height="228" rx="30" fill="#f6f3ec"/>
+    </g>
+    <text x="116" y="1094" fill="#29303a" font-size="24" font-weight="700" letter-spacing="1">НАПИШИ В КОММЕНТАРИЯХ</text>
+    <rect x="116" y="1120" width="198" height="62" rx="31" fill="#d65326"/>
+    <text x="215" y="1161" text-anchor="middle" fill="#fff" font-size="23" font-weight="700">СТАРТ</text>
+    <text x="338" y="1160" fill="#3b4149" font-size="23">— пришлём памятку для первой тренировки</text>
+    <rect x="116" y="1190" width="198" height="48" rx="24" fill="#303741"/>
+    <text x="215" y="1222" text-anchor="middle" fill="#fff" font-size="20" font-weight="700">ДЕТИ</text>
+    <text x="338" y="1222" fill="#3b4149" font-size="21">— расскажем о секции для детей 7–14 лет</text>
+  </g>
+</svg>
